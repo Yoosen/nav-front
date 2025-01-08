@@ -3,7 +3,7 @@
     <div class="category-section" v-for="category in categories" :key="category.id">
       <h2 class="category-title">{{ category.name }}</h2>
       <div class="nav-grid">
-        <div v-for="link in category.links" :key="link.id" class="nav-card">
+        <div v-for="link in category.navLinks" :key="link.id" class="nav-card">
           <a :href="link.url" target="_blank" class="card-content">
             <div class="icon-wrapper">
               <img :src="link.icon" :alt="link.title">
@@ -110,6 +110,7 @@ onMounted(() => {
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 </style> 

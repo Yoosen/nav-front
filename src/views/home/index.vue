@@ -1,18 +1,13 @@
 <template>
   <el-container class="layout">
-    <SideMenu />
+    <SideMenu @selectCategory="scrollToCategory" />
     <el-container class="main">
-      <el-header class="header">
-        <div class="search-box">
-          <el-input
-            v-model="searchText"
-            placeholder="搜索网站..."
-            @input="handleSearch"
-          />
-        </div>
-      </el-header>
-      <el-main class="content">
-        <div v-for="category in categories" :key="category.id">
+      <el-main class="content" ref="contentRef">
+        <div 
+          v-for="category in categories" 
+          :key="category.id"
+          :id="`category-${category.id}`"
+        >
           <h2 class="category-title">{{ category.name }}</h2>
           <div class="link-grid">
             <div v-for="link in category.navLinks" :key="link.id" class="link-card">
@@ -33,46 +28,34 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { getAllNavData, searchNavLinks } from '@/api/nav'
-import type { NavCategory, NavLink } from '@/types/nav'
+import { getAllNavData } from '@/api/nav'
+import type { NavCategory } from '@/types/nav'
 import SideMenu from '@/components/SideMenu.vue'
 
-const searchText = ref('')
+const contentRef = ref()
 const categories = ref<NavCategory[]>([])
-const favorites = ref<NavLink[]>([])  // 添加收藏列表
+
+const scrollToCategory = (categoryId: number) => {
+  const targetElement = document.getElementById(`category-${categoryId}`)
+  if (targetElement) {
+    targetElement.scrollIntoView({ 
+      behavior: 'smooth',
+      block: 'start'
+    })
+  }
+}
 
 const getNavData = async () => {
   try {
     const res = await getAllNavData()
-    console.log('导航数据:', res.data)
     categories.value = res.data
   } catch (error) {
     console.error('获取导航数据失败:', error)
   }
 }
 
-// TODO: 获取收藏数据
-const getFavorites = async () => {
-  // 实现获取收藏的逻辑
-}
-
-const handleSearch = async () => {
-  if (!searchText.value) {
-    getNavData()
-    return
-  }
-  try {
-    const res = await searchNavLinks(searchText.value)
-    // TODO: 处理搜索结果
-    console.log('搜索结果:', res.data)
-  } catch (error) {
-    console.error('搜索失败:', error)
-  }
-}
-
 onMounted(() => {
   getNavData()
-  getFavorites()
 })
 </script>
 
@@ -82,6 +65,7 @@ onMounted(() => {
   height: 100vh;
   overflow: hidden;
   display: flex;
+  background: #f5f7fa;
 }
 
 .main {
@@ -100,17 +84,12 @@ onMounted(() => {
   border-bottom: 1px solid #eee;
 }
 
-.search-box {
-  max-width: 480px;
-  margin: 12px auto;
-}
-
 .content {
   flex: 1;
   overflow-y: auto;
-  background: #f5f7fa;
   min-width: 0;
   padding: 0;
+  scroll-behavior: smooth;
 }
 
 .category-title {
@@ -196,6 +175,7 @@ onMounted(() => {
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
+  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 </style> 
