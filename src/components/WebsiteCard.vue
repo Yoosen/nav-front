@@ -1,76 +1,60 @@
 <template>
-  <el-card 
-    class="website-card cursor-pointer hover:shadow-lg transition-shadow"
-    @click="$emit('click')"
-  >
-    <div class="flex items-center space-x-3">
-      <div class="w-10 h-10 flex-shrink-0">
-        <img
-          :src="website.icon"
-          :alt="website.name"
-          class="w-full h-full object-contain"
-        />
+  <div class="link-card">
+    <a :href="link.url" target="_blank" class="link-content">
+      <img class="link-icon" :src="link.icon || '/default-icon.png'" :alt="link.title">
+      <div class="link-info">
+        <div class="link-title">{{ link.title }}</div>
+        <div class="link-desc">{{ link.description }}</div>
       </div>
-      <div class="flex-1 min-w-0">
-        <h3 class="font-medium text-gray-900 truncate">{{ website.name }}</h3>
-        <p class="text-sm text-gray-500 truncate">{{ website.description }}</p>
-      </div>
-      <div class="flex-shrink-0" @click.stop="toggleFavorite">
-        <el-icon 
-          :class="{ 'text-blue-500': isFavorite }"
-          class="text-xl hover:text-blue-500 transition-colors"
-        >
-          <template v-if="isInFavorites">
-            <Delete />
-          </template>
-          <template v-else>
-            <Star v-if="!isFavorite" />
-            <StarFilled v-else />
-          </template>
-        </el-icon>
-      </div>
+    </a>
+    <div class="favorite-btn" @click.stop="toggleFavorite">
+      <el-icon :class="{ 'is-favorite': isFavorite }">
+        <Star />
+      </el-icon>
     </div>
-  </el-card>
+  </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, watch } from 'vue'
-import { Star, StarFilled, Delete } from '@element-plus/icons-vue'
-import { useWebsiteStore } from '@/stores/website'
+import { computed } from 'vue'
+import { Star } from '@element-plus/icons-vue'
+import { useFavoriteStore } from '@/stores/favorite'
+import type { NavLink } from '@/types/nav'
 
-const websiteStore = useWebsiteStore()
+const props = defineProps<{
+  link: NavLink
+}>()
 
-interface Props {
-  website: {
-    id: number
-    name: string
-    url: string
-    icon: string
-    description: string
-  }
-  isInFavorites?: boolean
-}
+const favoriteStore = useFavoriteStore()
 
-const props = defineProps<Props>()
-
-const isFavorite = ref(false)
-
-// 监听收藏状态变化
-watch(() => websiteStore.isFavorite(props.website.id), (newValue) => {
-  isFavorite.value = newValue
-})
-
-onMounted(() => {
-  isFavorite.value = websiteStore.isFavorite(props.website.id)
-})
+const isFavorite = computed(() => favoriteStore.isFavorite(props.link.id))
 
 const toggleFavorite = () => {
-  if (props.isInFavorites || isFavorite.value) {
-    websiteStore.removeFavorite(props.website)
+  if (isFavorite.value) {
+    favoriteStore.removeFavorite(props.link)
   } else {
-    websiteStore.addFavorite(props.website)
+    favoriteStore.addFavorite(props.link)
   }
-  // 移除这行，让 watch 来处理状态更新
-  // isFavorite.value = !isFavorite.value
 }
 </script>
+
+<style scoped lang="scss">
+.favorite-btn {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  cursor: pointer;
+  color: #999;
+  transition: all 0.2s;
+  
+  &:hover {
+    color: #1890ff;
+  }
+  
+  .is-favorite {
+    color: #1890ff;
+  }
+}
+
+// ... 其他样式保持不变 ...
+</style>

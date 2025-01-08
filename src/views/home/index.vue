@@ -3,6 +3,31 @@
     <SideMenu @selectCategory="scrollToCategory" />
     <el-container class="main">
       <el-main class="content" ref="contentRef">
+        <!-- 收藏分类 -->
+        <div id="category-favorite">
+          <h2 class="category-title">我的收藏</h2>
+          <div class="link-grid" v-if="collectStore.collects.length">
+            <div v-for="link in collectStore.collects" :key="link.id" class="link-card">
+              <a :href="link.url" target="_blank" class="link-content">
+                <img class="link-icon" :src="link.icon || '/default-icon.png'" :alt="link.title">
+                <div class="link-info">
+                  <div class="link-title">{{ link.title }}</div>
+                  <div class="link-desc">{{ link.description }}</div>
+                </div>
+              </a>
+              <div class="collect-btn" @click.stop="toggleCollect(link)">
+                <el-icon>
+                  <el-icon-star-filled v-if="collectStore.isCollected(link.id)" />
+                  <el-icon-star v-else />
+                </el-icon>
+              </div>
+            </div>
+          </div>
+          <div v-else class="empty-tip">
+            还没有收藏的网站，点击网站卡片右上角的星标即可收藏
+          </div>
+        </div>
+        <!-- 其他分类 -->
         <div 
           v-for="category in categories" 
           :key="category.id"
@@ -18,6 +43,12 @@
                   <div class="link-desc">{{ link.description }}</div>
                 </div>
               </a>
+              <div class="collect-btn" @click.stop="toggleCollect(link)">
+                <el-icon>
+                  <el-icon-star-filled v-if="collectStore.isCollected(link.id)" />
+                  <el-icon-star v-else />
+                </el-icon>
+              </div>
             </div>
           </div>
         </div>
@@ -29,14 +60,21 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import { getAllNavData } from '@/api/nav'
-import type { NavCategory } from '@/types/nav'
+import type { NavCategory, NavLink } from '@/types/nav'
+import { useCollectStore } from '@/stores/collect'
 import SideMenu from '@/components/SideMenu.vue'
 
 const contentRef = ref()
 const categories = ref<NavCategory[]>([])
+const collectStore = useCollectStore()
 
-const scrollToCategory = (categoryId: number) => {
-  const targetElement = document.getElementById(`category-${categoryId}`)
+const toggleCollect = (link: NavLink) => {
+  collectStore.toggleCollect(link)
+}
+
+const scrollToCategory = (categoryId: string | number) => {
+  const elementId = categoryId === 'favorite' ? 'category-favorite' : `category-${categoryId}`
+  const targetElement = document.getElementById(elementId)
   if (targetElement) {
     targetElement.scrollIntoView({ 
       behavior: 'smooth',
@@ -56,6 +94,7 @@ const getNavData = async () => {
 
 onMounted(() => {
   getNavData()
+  collectStore.initCollects()
 })
 </script>
 
@@ -123,6 +162,7 @@ onMounted(() => {
 }
 
 .link-card {
+  position: relative;
   background: #fff;
   border: 1px solid #eee;
   border-radius: 8px;
@@ -132,6 +172,10 @@ onMounted(() => {
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    
+    .collect-btn {
+      opacity: 1;
+    }
   }
 }
 
@@ -177,5 +221,36 @@ onMounted(() => {
   -webkit-line-clamp: 2;
   line-clamp: 2;
   -webkit-box-orient: vertical;
+}
+
+.collect-btn {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 24px;
+  height: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  opacity: 0;
+  transition: all 0.2s;
+  color: #999;
+  z-index: 1;
+  
+  &:hover {
+    color: #1890ff;
+  }
+
+  .el-icon {
+    font-size: 16px;
+  }
+}
+
+.empty-tip {
+  text-align: center;
+  color: #999;
+  padding: 32px 0;
+  font-size: 14px;
 }
 </style> 

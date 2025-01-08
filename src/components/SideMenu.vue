@@ -1,6 +1,15 @@
 <template>
   <div class="side-menu">
     <div class="menu-content">
+      <!-- 收藏分类 -->
+      <div 
+        class="menu-item"
+        :class="{ active: currentCategory === 'favorite' }"
+        @click="handleCategoryClick('favorite')"
+      >
+        <span class="menu-text">我的收藏</span>
+      </div>
+      <!-- 其他分类 -->
       <div 
         v-for="category in categories" 
         :key="category.id"
@@ -16,15 +25,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
+import { Star } from '@element-plus/icons-vue'
 import { getAllNavData } from '@/api/nav'
 import type { NavCategory } from '@/types/nav'
 
-const currentCategory = ref(0)
+const currentCategory = ref<string | number>('favorite')  // 默认选中收藏
 const categories = ref<NavCategory[]>([])
 
 const emit = defineEmits(['selectCategory'])
 
-const handleCategoryClick = (categoryId: number) => {
+const handleCategoryClick = (categoryId: string | number) => {
   currentCategory.value = categoryId
   emit('selectCategory', categoryId)
 }
