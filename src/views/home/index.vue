@@ -7,18 +7,22 @@
         <div id="category-favorite">
           <h2 class="category-title">我的收藏</h2>
           <div class="link-grid" v-if="collectStore.collects.length">
-            <div v-for="link in collectStore.collects" :key="link.id" class="link-card">
-              <a :href="link.url" target="_blank" class="link-content">
-                <img class="link-icon" :src="link.icon || '/default-icon.png'" :alt="link.title">
+            <div v-for="link in collectStore.collects" :key="link.id" class="link-card" @click="openLink(link.url)">
+              <div class="link-content">
+                <img 
+                  class="link-icon" 
+                  :src="link.icon || '/default-icon.png'"
+                  :alt="link.title"
+                >
                 <div class="link-info">
                   <div class="link-title">{{ link.title }}</div>
                   <div class="link-desc">{{ link.description }}</div>
                 </div>
-              </a>
+              </div>
               <div class="collect-btn" @click.stop="toggleCollect(link)">
                 <el-icon>
-                  <el-icon-star-filled v-if="collectStore.isCollected(link.id)" />
-                  <el-icon-star v-else />
+                  <StarFilled v-if="collectStore.isCollected(link.id)" />
+                  <Star v-else />
                 </el-icon>
               </div>
             </div>
@@ -35,18 +39,22 @@
         >
           <h2 class="category-title">{{ category.name }}</h2>
           <div class="link-grid">
-            <div v-for="link in category.navLinks" :key="link.id" class="link-card">
-              <a :href="link.url" target="_blank" class="link-content">
-                <img class="link-icon" :src="link.icon || '/default-icon.png'" :alt="link.title">
+            <div v-for="link in category.navLinks" :key="link.id" class="link-card" @click="openLink(link.url)">
+              <div class="link-content">
+                <img 
+                  class="link-icon" 
+                  :src="link.icon || '/default-icon.png'"
+                  :alt="link.title"
+                >
                 <div class="link-info">
                   <div class="link-title">{{ link.title }}</div>
                   <div class="link-desc">{{ link.description }}</div>
                 </div>
-              </a>
+              </div>
               <div class="collect-btn" @click.stop="toggleCollect(link)">
                 <el-icon>
-                  <el-icon-star-filled v-if="collectStore.isCollected(link.id)" />
-                  <el-icon-star v-else />
+                  <StarFilled v-if="collectStore.isCollected(link.id)" />
+                  <Star v-else />
                 </el-icon>
               </div>
             </div>
@@ -63,6 +71,7 @@ import { getAllNavData } from '@/api/nav'
 import type { NavCategory, NavLink } from '@/types/nav'
 import { useCollectStore } from '@/stores/collect'
 import SideMenu from '@/components/SideMenu.vue'
+import { Star, StarFilled } from '@element-plus/icons-vue'
 
 const contentRef = ref()
 const categories = ref<NavCategory[]>([])
@@ -90,6 +99,11 @@ const getNavData = async () => {
   } catch (error) {
     console.error('获取导航数据失败:', error)
   }
+}
+
+// 打开链接
+const openLink = (url: string) => {
+  window.open(url, '_blank')
 }
 
 onMounted(() => {
@@ -141,10 +155,10 @@ onMounted(() => {
 .link-grid {
   display: grid;
   grid-template-columns: repeat(5, 1fr);
-  gap: 16px;
+  gap: 12px;
   margin: 0 24px 32px;
   
-  @media (max-width: 1600px) {
+  @media (max-width: 1800px) {
     grid-template-columns: repeat(4, 1fr);
   }
   
@@ -168,14 +182,12 @@ onMounted(() => {
   border-radius: 8px;
   transition: all 0.2s;
   height: 100%;
+  cursor: pointer;
+  min-width: 0;
   
   &:hover {
     transform: translateY(-2px);
     box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-    
-    .collect-btn {
-      opacity: 1;
-    }
   }
 }
 
@@ -185,7 +197,7 @@ onMounted(() => {
   align-items: flex-start;
   gap: 12px;
   text-decoration: none;
-  height: 100%;
+  min-height: 100px;
 }
 
 .link-icon {
@@ -199,13 +211,14 @@ onMounted(() => {
 .link-info {
   flex: 1;
   min-width: 0;
+  padding-right: 8px;
 }
 
 .link-title {
   font-size: 14px;
   font-weight: 500;
   color: #333;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -227,15 +240,14 @@ onMounted(() => {
   position: absolute;
   top: 8px;
   right: 8px;
-  width: 24px;
-  height: 24px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  opacity: 0;
   transition: all 0.2s;
-  color: #999;
+  color: #FDD260;
   z-index: 1;
   
   &:hover {
@@ -243,7 +255,15 @@ onMounted(() => {
   }
 
   .el-icon {
-    font-size: 16px;
+    font-size: 24px;
+  }
+
+  .el-icon-star-filled {
+    color: #faad14;
+    
+    &:hover {
+      color: #ffc53d;
+    }
   }
 }
 
