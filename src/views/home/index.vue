@@ -119,11 +119,13 @@ onMounted(() => {
   overflow: hidden;
   display: flex;
   background: #f5f7fa;
+  box-sizing: border-box;
 }
 
 .main {
   flex: 1;
-  height: 100vh;
+  margin-left: 20px;
+  height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
@@ -143,6 +145,20 @@ onMounted(() => {
   min-width: 0;
   padding: 0;
   scroll-behavior: smooth;
+  scrollbar-gutter: stable;
+  
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+  
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  
+  &::-webkit-scrollbar-thumb {
+    background: #ddd;
+    border-radius: 4px;
+  }
 }
 
 .category-title {
@@ -157,6 +173,7 @@ onMounted(() => {
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   margin: 0 24px 32px;
+  padding-right: 8px;
   
   @media (max-width: 1800px) {
     grid-template-columns: repeat(4, 1fr);

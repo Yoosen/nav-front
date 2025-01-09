@@ -7,6 +7,7 @@
         :class="{ active: currentCategory === 'favorite' }"
         @click="handleCategoryClick('favorite')"
       >
+        <el-icon><Star /></el-icon>
         <span class="menu-text">我的收藏</span>
       </div>
       <!-- 其他分类 -->
@@ -17,6 +18,9 @@
         :class="{ active: currentCategory === category.id }"
         @click="handleCategoryClick(category.id)"
       >
+        <el-icon>
+          <component :is="getCategoryIcon(category.id)" />
+        </el-icon>
         <span class="menu-text">{{ category.name }}</span>
       </div>
     </div>
@@ -25,7 +29,16 @@
 
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { Star } from '@element-plus/icons-vue'
+import { 
+  Star,
+  Tools,
+  Document,
+  Monitor,
+  Collection,
+  Link,
+  Reading,
+  Platform
+} from '@element-plus/icons-vue'
 import { getAllNavData } from '@/api/nav'
 import type { NavCategory } from '@/types/nav'
 
@@ -48,6 +61,20 @@ const getCategories = async () => {
   }
 }
 
+// 根据分类ID返回对应的图标
+const getCategoryIcon = (categoryId: number) => {
+  const iconMap: Record<number, any> = {
+    1: Tools,      // 开发工具
+    2: Document,   // 文档
+    3: Monitor,    // 监控
+    4: Collection, // 资源
+    5: Link,       // 常用链接
+    6: Reading,    // 学习
+    7: Platform    // 平台
+  }
+  return iconMap[categoryId] || Platform
+}
+
 onMounted(() => {
   getCategories()
 })
@@ -58,29 +85,34 @@ onMounted(() => {
   margin-top: 5%;
   margin-left: 1%;
   width: 200px;
-  height: 80%;
+  height: 80vh;
   background: #fff;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
-  z-index: 10;
   border-radius: 12px;
+  overflow-y: auto;
+  overflow-x: hidden;
 }
 
 .menu-content {
-  padding: 12px 0;
-  height: 100%;
-  overflow-y: auto;
+  padding: 16px 0;
 }
 
 .menu-item {
-  padding: 8px 16px;
-  margin: 2px 8px;
+  padding: 12px 16px;
+  margin: 4px 8px;
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
   color: #666;
   display: flex;
   align-items: center;
-  font-size: 13px;
+  font-size: 14px;
+  font-weight: 500;
+  
+  .el-icon {
+    margin-right: 10px;
+    font-size: 18px;
+  }
   
   &:hover {
     color: #333;
@@ -91,11 +123,6 @@ onMounted(() => {
     color: #1890ff;
     background: #e6f7ff;
   }
-
-  i {
-    margin-right: 8px;
-    font-size: 14px;
-  }
 }
 
 .menu-text {
@@ -103,5 +130,6 @@ onMounted(() => {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  line-height: 1.4;
 }
 </style> 
