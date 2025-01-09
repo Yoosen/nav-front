@@ -1,5 +1,5 @@
 <template>
-  <div class="side-menu">
+  <el-scrollbar class="side-menu">
     <div class="menu-content">
       <!-- 收藏分类 -->
       <div 
@@ -24,7 +24,7 @@
         <span class="menu-text">{{ category.name }}</span>
       </div>
     </div>
-  </div>
+  </el-scrollbar>
 </template>
 
 <script setup lang="ts">
@@ -89,8 +89,17 @@ onMounted(() => {
   background: #fff;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   border-radius: 12px;
-  overflow-y: auto;
-  overflow-x: hidden;
+  
+  /* 自定义 el-scrollbar 的样式（可选） */
+  :deep(.el-scrollbar__bar) {
+    &.is-horizontal {
+      display: none;
+    }
+    
+    &.is-vertical {
+      width: 6px;
+    }
+  }
 }
 
 .menu-content {

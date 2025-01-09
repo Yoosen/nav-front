@@ -2,7 +2,7 @@
   <el-container class="layout">
     <SideMenu @selectCategory="scrollToCategory" />
     <el-container class="main">
-      <el-main class="content" ref="contentRef">
+      <el-scrollbar class="content" ref="contentRef">
         <!-- 收藏分类 -->
         <div id="category-favorite">
           <h2 class="category-title">我的收藏</h2>
@@ -60,7 +60,7 @@
             </div>
           </div>
         </div>
-      </el-main>
+      </el-scrollbar>
     </el-container>
   </el-container>
 </template>
@@ -120,6 +120,7 @@ onMounted(() => {
   display: flex;
   background: #f5f7fa;
   box-sizing: border-box;
+  padding: 20px 0 20px 20px;
 }
 
 .main {
@@ -129,6 +130,7 @@ onMounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  padding-right: 20px;
 }
 
 .header {
@@ -141,23 +143,24 @@ onMounted(() => {
 
 .content {
   flex: 1;
-  overflow-y: auto;
-  min-width: 0;
   padding: 0;
-  scroll-behavior: smooth;
-  scrollbar-gutter: stable;
   
-  &::-webkit-scrollbar {
-    width: 8px;
-  }
-  
-  &::-webkit-scrollbar-track {
-    background: transparent;
-  }
-  
-  &::-webkit-scrollbar-thumb {
-    background: #ddd;
-    border-radius: 4px;
+  :deep(.el-scrollbar__bar) {
+    &.is-horizontal {
+      display: none;
+    }
+    
+    &.is-vertical {
+      width: 8px;
+      opacity: 1 !important;
+    }
+
+    .el-scrollbar__thumb {
+      background-color: rgba(144, 147, 153, 0.3);
+      &:hover {
+        background-color: rgba(144, 147, 153, 0.5);
+      }
+    }
   }
 }
 
@@ -173,23 +176,6 @@ onMounted(() => {
   grid-template-columns: repeat(5, 1fr);
   gap: 12px;
   margin: 0 24px 32px;
-  padding-right: 8px;
-  
-  @media (max-width: 1800px) {
-    grid-template-columns: repeat(4, 1fr);
-  }
-  
-  @media (max-width: 1400px) {
-    grid-template-columns: repeat(3, 1fr);
-  }
-  
-  @media (max-width: 1200px) {
-    grid-template-columns: repeat(2, 1fr);
-  }
-  
-  @media (max-width: 768px) {
-    grid-template-columns: 1fr;
-  }
 }
 
 .link-card {
