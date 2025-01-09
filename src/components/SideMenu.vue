@@ -4,7 +4,7 @@
       <!-- 收藏分类 -->
       <div 
         class="menu-item"
-        :class="{ active: currentCategory === 'favorite' }"
+        :class="{ active: props.currentCategory === 'favorite' }"
         @click="handleCategoryClick('favorite')"
       >
         <el-icon><Star /></el-icon>
@@ -15,7 +15,7 @@
         v-for="category in categories" 
         :key="category.id"
         class="menu-item"
-        :class="{ active: currentCategory === category.id }"
+        :class="{ active: props.currentCategory === category.id }"
         @click="handleCategoryClick(category.id)"
       >
         <el-icon>
@@ -42,13 +42,14 @@ import {
 import { getAllNavData } from '@/api/nav'
 import type { NavCategory } from '@/types/nav'
 
-const currentCategory = ref<string | number>('favorite')  // 默认选中收藏
-const categories = ref<NavCategory[]>([])
+const props = defineProps<{
+  currentCategory: string | number
+}>()
 
+const categories = ref<NavCategory[]>([])
 const emit = defineEmits(['selectCategory'])
 
 const handleCategoryClick = (categoryId: string | number) => {
-  currentCategory.value = categoryId
   emit('selectCategory', categoryId)
 }
 

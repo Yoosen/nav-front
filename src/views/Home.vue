@@ -1,6 +1,9 @@
 <template>
   <div class="home">
-    <SideMenu />
+    <SideMenu 
+      :currentCategory="currentCategory"
+      @selectCategory="handleCategorySelect"
+    />
     <div class="main-content">
       <header class="header">
         <div class="search-box">
@@ -24,6 +27,7 @@ import NavList from '../components/NavList.vue'
 import SideMenu from '../components/SideMenu.vue'
 
 const searchText = ref('')
+const currentCategory = ref<string | number>('favorite')  // 默认选中收藏分类
 
 const handleSearch = async () => {
   if (!searchText.value) return
@@ -34,6 +38,10 @@ const handleSearch = async () => {
   } catch (error) {
     console.error('搜索失败:', error)
   }
+}
+
+const handleCategorySelect = (categoryId: string | number) => {
+  currentCategory.value = categoryId
 }
 </script>
 

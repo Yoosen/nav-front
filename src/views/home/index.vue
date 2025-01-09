@@ -1,6 +1,6 @@
 <template>
   <el-container class="layout">
-    <SideMenu @selectCategory="scrollToCategory" />
+    <SideMenu @selectCategory="scrollToCategory" :currentCategory="currentCategory" />
     <el-container class="main">
       <el-scrollbar class="content" ref="contentRef">
         <!-- 收藏分类 -->
@@ -66,7 +66,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, onUnmounted } from 'vue'
 import { getAllNavData } from '@/api/nav'
 import type { NavCategory, NavLink } from '@/types/nav'
 import { useCollectStore } from '@/stores/collect'
@@ -76,12 +76,14 @@ import { Star, StarFilled } from '@element-plus/icons-vue'
 const contentRef = ref()
 const categories = ref<NavCategory[]>([])
 const collectStore = useCollectStore()
+const currentCategory = ref<string | number>('favorite')
 
 const toggleCollect = (link: NavLink) => {
   collectStore.toggleCollect(link)
 }
 
 const scrollToCategory = (categoryId: string | number) => {
+  currentCategory.value = categoryId
   const elementId = categoryId === 'favorite' ? 'category-favorite' : `category-${categoryId}`
   const targetElement = document.getElementById(elementId)
   if (targetElement) {
@@ -92,10 +94,86 @@ const scrollToCategory = (categoryId: string | number) => {
   }
 }
 
+// 创建 Intersection Observer
+let observer: IntersectionObserver | null = null
+
+const setupIntersectionObserver = () => {
+  // 配置 observer
+  const options = {
+    root: contentRef.value?.wrapRef,
+    rootMargin: '0px', // 使用精确的视口边界
+    threshold: 0 // 只在完全进入或离开时触发
+  }
+
+  // 获取所有分类的顺序
+  const getCategoryOrder = () => ['favorite', ...categories.value.map(c => c.id.toString())]
+
+  observer = new IntersectionObserver((entries) => {
+    const categoryOrder = getCategoryOrder()
+    
+    entries.forEach(entry => {
+      // 从父元素获取分类ID
+      const categoryId = entry.target.closest('[id^="category-"]')?.id.replace('category-', '')
+      if (!categoryId) return
+
+      const currentOrder = categoryOrder.indexOf(currentCategory.value.toString())
+      const thisOrder = categoryOrder.indexOf(categoryId)
+
+      if (!entry.isIntersecting) {
+        // 标题离开视口时，如果是当前选中的分类，切换到下一个可见的分类
+        if (categoryId === currentCategory.value.toString()) {
+          // 从当前分类往后找第一个标题可见的分类
+          for (let i = thisOrder + 1; i < categoryOrder.length; i++) {
+            const nextId = categoryOrder[i]
+            const nextElement = document.getElementById(`category-${nextId}`)
+            const nextTitle = nextElement?.querySelector('.category-title')
+            if (nextTitle && isElementVisible(nextTitle)) {
+              currentCategory.value = nextId === 'favorite' ? 'favorite' : Number(nextId)
+              break
+            }
+          }
+        }
+      } else {
+        // 标题进入视口时，如果它的序号小于当前选中的分类，切换到它
+        if (thisOrder < currentOrder) {
+          currentCategory.value = categoryId === 'favorite' ? 'favorite' : Number(categoryId)
+        }
+      }
+    })
+  }, options)
+
+  // 检查元素是否在视口内
+  const isElementVisible = (element: Element) => {
+    const rect = element.getBoundingClientRect()
+    const viewHeight = Math.max(document.documentElement.clientHeight, window.innerHeight)
+    return rect.top < viewHeight && rect.bottom > 0
+  }
+
+  // 观察所有分类标题
+  const observeCategories = () => {
+    // 观察收藏分类的标题
+    const favoriteElement = document.getElementById('category-favorite')
+    const favoriteTitle = favoriteElement?.querySelector('.category-title')
+    if (favoriteTitle) observer?.observe(favoriteTitle)
+
+    // 观察其他分类的标题
+    categories.value.forEach(category => {
+      const element = document.getElementById(`category-${category.id}`)
+      const titleElement = element?.querySelector('.category-title')
+      if (titleElement) observer?.observe(titleElement)
+    })
+  }
+
+  // 等待 DOM 更新后再观察
+  setTimeout(observeCategories, 100)
+}
+
 const getNavData = async () => {
   try {
     const res = await getAllNavData()
     categories.value = res.data
+    // 数据加载完成后设置观察器
+    setupIntersectionObserver()
   } catch (error) {
     console.error('获取导航数据失败:', error)
   }
@@ -109,6 +187,14 @@ const openLink = (url: string) => {
 onMounted(() => {
   getNavData()
   collectStore.initCollects()
+})
+
+// 清理 observer
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect()
+    observer = null
+  }
 })
 </script>
 
@@ -259,4 +345,4 @@ onMounted(() => {
   padding: 32px 0;
   font-size: 14px;
 }
-</style> 
+</style>
