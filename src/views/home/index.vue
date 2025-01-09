@@ -120,17 +120,15 @@ onMounted(() => {
   display: flex;
   background: #f5f7fa;
   box-sizing: border-box;
-  padding: 20px 0 20px 20px;
 }
 
 .main {
   flex: 1;
-  margin-left: 20px;
   height: 100%;
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  padding-right: 20px;
+  margin-left: calc(200px + 1% + 20px);
 }
 
 .header {
@@ -145,22 +143,7 @@ onMounted(() => {
   flex: 1;
   padding: 0;
   
-  :deep(.el-scrollbar__bar) {
-    &.is-horizontal {
-      display: none;
-    }
-    
-    &.is-vertical {
-      width: 8px;
-      opacity: 1 !important;
-    }
-
-    .el-scrollbar__thumb {
-      background-color: rgba(144, 147, 153, 0.3);
-      &:hover {
-        background-color: rgba(144, 147, 153, 0.5);
-      }
-    }
+  :deep(.el-scrollbar__wrap) {
   }
 }
 
@@ -173,7 +156,7 @@ onMounted(() => {
 
 .link-grid {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 12px;
   margin: 0 24px 32px;
 }
@@ -186,7 +169,7 @@ onMounted(() => {
   transition: all 0.2s;
   height: 100%;
   cursor: pointer;
-  min-width: 0;
+  min-width: 280px;
   
   &:hover {
     transform: translateY(-2px);
@@ -218,8 +201,8 @@ onMounted(() => {
 }
 
 .link-title {
-  font-size: 14px;
-  font-weight: 500;
+  font-size: 1rem;
+  font-weight: 600;
   color: #333;
   margin-bottom: 8px;
   white-space: nowrap;
@@ -228,7 +211,7 @@ onMounted(() => {
 }
 
 .link-desc {
-  font-size: 12px;
+  font-size: 0.9rem;
   color: #666;
   line-height: 1.5;
   overflow: hidden;

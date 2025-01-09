@@ -82,6 +82,7 @@ onMounted(() => {
 
 <style scoped lang="scss">
 .side-menu {
+  position: fixed;
   margin-top: 5%;
   margin-left: 1%;
   width: 200px;
@@ -89,6 +90,7 @@ onMounted(() => {
   background: #fff;
   box-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   border-radius: 12px;
+  z-index: 1; /* 确保不会遮挡内容 */
   
   /* 自定义 el-scrollbar 的样式（可选） */
   :deep(.el-scrollbar__bar) {
