@@ -2,13 +2,17 @@
   <el-container class="layout">
     <SideMenu @selectCategory="scrollToCategory" :currentCategory="currentCategory" />
     <el-container class="main">
-      <el-scrollbar class="content" ref="contentRef">
+      <el-scrollbar class="content" ref="contentRef" style="padding-right: 1%;">
+        <HeaderBanner />
         <!-- 收藏分类 -->
         <div id="category-favorite">
           <h2 class="category-title">我的收藏</h2>
-          <div class="link-grid" v-if="collectStore.collects.length">
-            <div v-for="link in collectStore.collects" :key="link.id" class="link-card" @click="openLink(link.url)">
-              <div class="link-content">
+          <div class="link-grid">
+            <div v-for="link in collectStore.collects" 
+              :key="link.id" 
+              class="link-card"
+            >
+              <div class="link-content" @click="openLink(link.url)">
                 <img 
                   class="link-icon" 
                   :src="link.icon || '/default-icon.png'"
@@ -26,9 +30,9 @@
                 </el-icon>
               </div>
             </div>
-          </div>
-          <div v-else class="empty-tip">
-            还没有收藏的网站，点击网站卡片右上角的星标即可收藏
+            <div v-if="!collectStore.collects.length" class="empty-tip">
+              还没有收藏的网站，点击网站卡片右上角的星标即可收藏
+            </div>
           </div>
         </div>
         <!-- 其他分类 -->
@@ -39,8 +43,11 @@
         >
           <h2 class="category-title">{{ category.name }}</h2>
           <div class="link-grid">
-            <div v-for="link in category.navLinks" :key="link.id" class="link-card" @click="openLink(link.url)">
-              <div class="link-content">
+            <div v-for="link in category.navLinks" 
+              :key="link.id" 
+              class="link-card"
+            >
+              <div class="link-content" @click="openLink(link.url)">
                 <img 
                   class="link-icon" 
                   :src="link.icon || '/default-icon.png'"
@@ -60,6 +67,7 @@
             </div>
           </div>
         </div>
+        <FooterNav />
       </el-scrollbar>
     </el-container>
   </el-container>
@@ -70,8 +78,10 @@ import { ref, onMounted, onUnmounted } from 'vue'
 import { getAllNavData } from '@/api/nav'
 import type { NavCategory, NavLink } from '@/types/nav'
 import { useCollectStore } from '@/stores/collect'
-import SideMenu from '@/components/SideMenu.vue'
 import { Star, StarFilled } from '@element-plus/icons-vue'
+import HeaderBanner from '@/components/HeaderBanner.vue'
+import FooterNav from '@/components/FooterNav.vue'
+import SideMenu from '@/components/SideMenu.vue'
 
 const contentRef = ref()
 const categories = ref<NavCategory[]>([])
@@ -214,135 +224,268 @@ onUnmounted(() => {
   overflow: hidden;
   display: flex;
   flex-direction: column;
-  margin-left: calc(200px + 1% + 20px);
-}
-
-.header {
-  height: 64px !important;
-  line-height: 64px;
-  padding: 0 32px;
-  background: #fff;
-  border-bottom: 1px solid #eee;
+  margin-left: 240px; 
+  padding-left: 2rem; 
 }
 
 .content {
   flex: 1;
   padding: 0;
-  
-  :deep(.el-scrollbar__wrap) {
-  }
+  overflow-x: hidden;
 }
 
 .category-title {
-  font-size: 16px;
-  font-weight: 500;
+  font-size: 1.25rem;
+  font-weight: 600;
   color: #333;
-  margin: 16px 24px;
+  margin: 1.5rem 1rem 1rem;
+}
+
+#category-favorite,
+[id^="category-"] {
+  margin: 0 1rem;
 }
 
 .link-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: 12px;
-  margin: 0 24px 32px;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  padding: 0 1rem;
+  margin-right: 1rem; 
+}
+
+// 响应式布局
+@media screen and (max-width: 1400px) {
+  .link-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+@media screen and (max-width: 1200px) {
+  .link-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media screen and (max-width: 992px) {
+  .link-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media screen and (max-width: 768px) {
+  .link-grid {
+    grid-template-columns: repeat(1, 1fr);
+  }
 }
 
 .link-card {
-  position: relative;
   background: #fff;
   border: 1px solid #eee;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   transition: all 0.2s;
-  height: 100%;
   cursor: pointer;
-  min-width: 280px;
-  
+  position: relative;
+  height: 7.5rem;
+  padding: 1rem;
+  box-sizing: border-box;
+
   &:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    transform: translateY(-0.125rem);
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.05);
   }
 }
 
 .link-content {
-  padding: 16px;
   display: flex;
+  height: 100%;
   align-items: flex-start;
-  gap: 12px;
-  text-decoration: none;
-  min-height: 100px;
+  gap: 1rem;
 }
 
 .link-icon {
-  width: 32px;
-  height: 32px;
-  border-radius: 6px;
-  object-fit: contain;
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.25rem;
   flex-shrink: 0;
 }
 
 .link-info {
   flex: 1;
-  min-width: 0;
-  padding-right: 8px;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
 }
 
 .link-title {
   font-size: 1rem;
-  font-weight: 600;
+  font-weight: 500;
   color: #333;
-  margin-bottom: 8px;
-  white-space: nowrap;
+  line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
+  white-space: nowrap;
 }
 
 .link-desc {
-  font-size: 0.9rem;
+  font-size: 0.875rem;
   color: #666;
-  line-height: 1.5;
+  line-height: 1.4;
   overflow: hidden;
   text-overflow: ellipsis;
   display: -webkit-box;
   -webkit-line-clamp: 2;
-  line-clamp: 2;
   -webkit-box-orient: vertical;
 }
 
 .collect-btn {
   position: absolute;
-  top: 8px;
-  right: 8px;
-  width: 32px;
-  height: 32px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  top: 1rem;
+  right: 1rem;
+  color: #999;
   cursor: pointer;
-  transition: all 0.2s;
-  color: #FDD260;
-  z-index: 1;
-  
+  transition: color 0.2s;
+
   &:hover {
-    color: #1890ff;
+    color: #666;
   }
 
-  .el-icon {
-    font-size: 24px;
-  }
-
-  .el-icon-star-filled {
-    color: #faad14;
-    
-    &:hover {
-      color: #ffc53d;
-    }
+  .is-collected {
+    color: #f7ba2a;
   }
 }
 
 .empty-tip {
   text-align: center;
   color: #999;
-  padding: 32px 0;
-  font-size: 14px;
+  font-size: 0.875rem;
+  padding: 2rem 0;
+}
+
+// 顶部背景区域样式
+.header-banner {
+  height: 16.25rem;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  position: relative;
+  margin: 1.5rem 1.5rem 3rem;
+  border-radius: 0.75rem;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: url('https://source.unsplash.com/random/1600x900/?technology') center/cover;
+    opacity: 0.2;
+    z-index: 1;
+  }
+
+  .banner-content {
+    position: relative;
+    z-index: 2;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    color: white;
+    text-align: center;
+    padding: 0 1.25rem;
+
+    h1 {
+      font-size: 3rem;
+      font-weight: 700;
+      margin-bottom: 1rem;
+      letter-spacing: 0.125rem;
+    }
+
+    p {
+      font-size: 1.125rem;
+      opacity: 0.9;
+      max-width: 37.5rem;
+    }
+  }
+}
+
+// 底部导航简介样式
+.footer {
+  margin: 3.75rem 1.5rem 1.5rem;
+  padding: 2.5rem;
+  background: white;
+  border-radius: 0.75rem;
+  box-shadow: 0 0.25rem 0.75rem rgba(0, 0, 0, 0.04);
+
+  .footer-content {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(18.75rem, 1fr));
+    gap: 2.5rem;
+    margin-bottom: 2.5rem;
+
+    h3 {
+      font-size: 1.125rem;
+      font-weight: 600;
+      margin-bottom: 1.25rem;
+      color: #333;
+    }
+
+    p {
+      color: #666;
+      line-height: 1.6;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+
+      li {
+        color: #666;
+        margin-bottom: 0.75rem;
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+      }
+    }
+
+    .social-links {
+      a {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        color: #666;
+        text-decoration: none;
+        padding: 0.5rem 1rem;
+        border-radius: 0.375rem;
+        transition: all 0.2s;
+
+        &:hover {
+          color: #1890ff;
+          background: rgba(24, 144, 255, 0.1);
+        }
+
+        .el-icon {
+          font-size: 1.125rem;
+        }
+      }
+    }
+  }
+
+  .copyright {
+    text-align: center;
+    color: #999;
+    padding-top: 1.5rem;
+    border-top: 1px solid #eee;
+  }
+}
+
+// 收藏分类和其他分类的容器样式
+#category-favorite,
+[id^="category-"] {
+  margin: 0;
 }
 </style>

@@ -1,43 +1,43 @@
 <template>
   <el-scrollbar class="side-menu">
-    <div class="menu-content">
-      <!-- 收藏分类 -->
-      <div 
-        class="menu-item"
-        :class="{ active: props.currentCategory === 'favorite' }"
-        @click="handleCategoryClick('favorite')"
-      >
+    <el-menu
+      class="menu-content"
+      :default-active="props.currentCategory"
+      @select="handleSelect"
+    >
+      <el-menu-item index="favorite">
         <el-icon><Star /></el-icon>
-        <span class="menu-text">我的收藏</span>
-      </div>
-      <!-- 其他分类 -->
-      <div 
+        <span>我的收藏</span>
+      </el-menu-item>
+      <el-menu-item 
         v-for="category in categories" 
         :key="category.id"
-        class="menu-item"
-        :class="{ active: props.currentCategory === category.id }"
-        @click="handleCategoryClick(category.id)"
+        :index="category.id.toString()"
       >
         <el-icon>
           <component :is="getCategoryIcon(category.id)" />
         </el-icon>
-        <span class="menu-text">{{ category.name }}</span>
-      </div>
-    </div>
+        <span>{{ category.name }}</span>
+      </el-menu-item>
+    </el-menu>
   </el-scrollbar>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { 
   Star,
-  Tools,
-  Document,
   Monitor,
-  Collection,
   Link,
+  Promotion,
   Reading,
-  Platform
+  VideoCamera,
+  Coffee,
+  Basketball,
+  Briefcase,
+  Box,
+  Notebook,
+  Opportunity
 } from '@element-plus/icons-vue'
 import { getAllNavData } from '@/api/nav'
 import type { NavCategory } from '@/types/nav'
@@ -49,8 +49,26 @@ const props = defineProps<{
 const categories = ref<NavCategory[]>([])
 const emit = defineEmits(['selectCategory'])
 
-const handleCategoryClick = (categoryId: string | number) => {
-  emit('selectCategory', categoryId)
+const handleSelect = (index: string) => {
+  emit('selectCategory', index)
+}
+
+// 根据分类ID返回对应的图标组件
+const getCategoryIcon = (id: number) => {
+  const iconMap: Record<number, any> = {
+    1: Monitor,      // 常用工具
+    2: Link,         // 友情链接
+    3: Promotion,    // 资源导航
+    4: Reading,      // 文档教程
+    5: VideoCamera,  // 视频学习
+    6: Coffee,       // 休闲娱乐
+    7: Basketball,   // 体育运动
+    8: Briefcase,    // 求职招聘
+    9: Box,          // 软件下载
+    10: Notebook,    // 在线工具
+    11: Opportunity  // 其他资源
+  }
+  return iconMap[id] || Monitor // 默认返回 Monitor 图标
 }
 
 const getCategories = async () => {
@@ -62,20 +80,6 @@ const getCategories = async () => {
   }
 }
 
-// 根据分类ID返回对应的图标
-const getCategoryIcon = (categoryId: number) => {
-  const iconMap: Record<number, any> = {
-    1: Tools,      // 开发工具
-    2: Document,   // 文档
-    3: Monitor,    // 监控
-    4: Collection, // 资源
-    5: Link,       // 常用链接
-    6: Reading,    // 学习
-    7: Platform    // 平台
-  }
-  return iconMap[categoryId] || Platform
-}
-
 onMounted(() => {
   getCategories()
 })
@@ -85,7 +89,7 @@ onMounted(() => {
 .side-menu {
   position: fixed;
   margin-top: 5%;
-  margin-left: 1%;
+  margin-left: 2%;
   width: 200px;
   height: 80vh;
   background: #fff;
@@ -109,39 +113,13 @@ onMounted(() => {
   padding: 16px 0;
 }
 
-.menu-item {
-  padding: 12px 16px;
-  margin: 4px 8px;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: all 0.2s;
-  color: #666;
-  display: flex;
-  align-items: center;
-  font-size: 14px;
-  font-weight: 500;
-  
-  .el-icon {
-    margin-right: 10px;
-    font-size: 18px;
+:deep(.el-menu-item) {
+  &.is-active {
+    background-color: var(--el-menu-hover-bg-color);
   }
-  
-  &:hover {
-    color: #333;
-    background: #f5f7fa;
-  }
-  
-  &.active {
-    color: #1890ff;
-    background: #e6f7ff;
-  }
-}
 
-.menu-text {
-  flex: 1;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  line-height: 1.4;
+  .el-icon {
+    font-size: 1.25rem;
+  }
 }
-</style> 
+</style>
