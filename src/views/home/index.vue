@@ -343,7 +343,7 @@ onUnmounted(() => {
   position: absolute;
   top: 1rem;
   right: 1rem;
-  color: #999;
+  color: #f7ba2a;
   cursor: pointer;
   transition: color 0.2s;
 
