@@ -61,7 +61,7 @@
               <div class="collect-btn" @click.stop="toggleCollect(link)">
                 <el-icon>
                   <StarFilled v-if="collectStore.isCollected(link.id)" />
-                  <Star v-else />
+                  <Star v-else  class="star-icon" />
                 </el-icon>
               </div>
             </div>
@@ -339,6 +339,12 @@ onUnmounted(() => {
   -webkit-box-orient: vertical;
 }
 
+:deep(.el-icon) {
+  width: 1.25rem;
+  height: 1.25rem;
+  font-size: 1.25rem;
+}
+
 .collect-btn {
   position: absolute;
   top: 1rem;
@@ -348,10 +354,17 @@ onUnmounted(() => {
   transition: color 0.2s;
 
   &:hover {
-    color: #666;
+    color: #f7ba2a;
   }
 
   .is-collected {
+    color: #f7ba2a;
+  }
+
+  .star-icon {
+    width: 1.5em;
+    height: 1.5em;
+    font-size: 1.25rem;
     color: #f7ba2a;
   }
 }
